@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import logo from "../imgs/logo.png";
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { IoSearch } from "react-icons/io5";
 import '../index.css';
 import { LuFileEdit } from 'react-icons/lu';
@@ -9,7 +9,8 @@ const Navbar = () => {
   const [searchBoxVisibility, setSearchBoxVisibility] = useState(false);
 
   return (
-    <nav className='navbar'>
+    <>
+      <nav className='navbar'>
       <Link to='/' className="flex-none w-10">
         <img className='w-full' src={logo} alt="Logo" />
       </Link>
@@ -45,6 +46,8 @@ const Navbar = () => {
 
       </div>
     </nav>
+    <Outlet/>
+    </>
   );
 }
 
