@@ -12,7 +12,7 @@ import { UserContext } from '../App';
 
 const UserAuthForm = ({ type }) => {
   const authForm = useRef();
-  const { setUserAuth } = useContext(UserContext);
+  const { userAuth, setUserAuth } = useContext(UserContext);
 
   const UserAuthThroughServer = async (serverRoute, formData) => {
     try {
@@ -67,10 +67,12 @@ const UserAuthForm = ({ type }) => {
     UserAuthThroughServer(serverRoute, formData);
   };
 
+  // Redirect if the user is authenticated
+  if (userAuth.access_token) {
+    return <Navigate to="/" />;
+  }
+
   return (
-    access_token ?
-    <Navigate to="/"/>
-    :
     <AnimationWrapper keyValue={type}>
       <section className='h-cover flex items-center justify-center'>
         <Toaster />
