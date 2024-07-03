@@ -1,68 +1,123 @@
-import React from 'react'
-import InputBox from '../components/input.component'
-import { LuUser2 } from 'react-icons/lu'
-import { LuMail } from 'react-icons/lu'
-import { IoKeyOutline } from 'react-icons/io5'
-import googleIcon from '../imgs/google.png'
-import { Link } from 'react-router-dom'
-import AnimationWrapper from '../common/page-animation'
+import React, { useRef } from 'react';
+import InputBox from '../components/input.component';
+import { LuUser2, LuMail } from 'react-icons/lu';
+import { IoKeyOutline } from 'react-icons/io5';
+import googleIcon from '../imgs/google.png';
+import { Link } from 'react-router-dom';
+import AnimationWrapper from '../common/page-animation';
+import { Toaster, toast } from 'react-hot-toast';
+import axios from 'axios';
+import { storeInSession } from '../common/session';
 
 const UserAuthForm = ({ type }) => {
+  const authForm = useRef();
+
+  const UserAuthThroughServer = async (serverRoute, formData) => {
+    try {
+      const { data } = await axios.post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData);
+      storeInSession("user", JSON.stringify(data));
+      console.log(sessionStorage);
+      toast.success("User signed up successfully!");
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    let serverRoute = type === "sign-in" ? "/signin" : "/signup";
+
+    let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // regex for email
+    let passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/; // regex for password
+
+    // formdata
+    let form = new FormData(authForm.current);
+    let formData = {};
+
+    for (let [key, value] of form.entries()) {
+      formData[key] = value;
+    }
+
+    let { fullname, email, password } = formData;
+
+    // form validation
+    if (type !== 'sign-in' && fullname) {
+      if (fullname.length < 3) {
+        return toast.error("Fullname must be at least 3 letters long");
+      }
+    }
+
+    if (!email.length) {
+      return toast.error("Enter Email");
+    }
+    if (!emailRegex.test(email)) {
+      return toast.error("Email is invalid");
+    }
+    if (!passwordRegex.test(password)) {
+      return toast.error("Password should be 6 to 20 characters long with a numeric, 1 lowercase and 1 uppercase letters");
+    }
+
+    UserAuthThroughServer(serverRoute, formData);
+  };
+
   return (
     <AnimationWrapper keyValue={type}>
       <section className='h-cover flex items-center justify-center'>
-      <form action="" className='w-[80%] max-w-[400px]' >
-        <h1 className='text-4xl font-gelasio capitalize text-center mb-24'>
+        <Toaster />
+        <form ref={authForm} onSubmit={handleSubmit} className='w-[80%] max-w-[400px]'>
+          <h1 className='text-4xl font-gelasio capitalize text-center mb-24'>
             {type === 'sign-in' ? 'Welcome back' : 'Join us today'}
-        </h1>
+          </h1>
 
-        {
-          type !== 'sign-in' && 
-          <InputBox 
-            name='fullname'
-            type='text'
-            placeholder='Full Name'
-            icon={LuUser2}
-          /> 
-        }
-        <InputBox 
-          name='email'
-          type='email'
-          placeholder='Email'
-          icon={LuMail}
-        />
-        <InputBox 
-          name='password'
-          type='password'
-          placeholder='Password'
-          icon={IoKeyOutline}
-        />
-        <button
-          className='btn-dark center mt-14'
-          type='submit'
-        >
-          { type.replace('-',' ')}
-        </button>
+          {type !== 'sign-in' &&
+            <InputBox
+              name='fullname'
+              type='text'
+              placeholder='Full Name'
+              icon={LuUser2}
+            />
+          }
+          <InputBox
+            name='email'
+            type='email'
+            placeholder='Email'
+            icon={LuMail}
+          />
+          <InputBox
+            name='password'
+            type='password'
+            placeholder='Password'
+            icon={IoKeyOutline}
+          />
+          <button
+            className='btn-dark center mt-14'
+            type='submit'
+          >
+            {type.replace('-', ' ')}
+          </button>
 
-        <div className='relative w-full  flex items-center gap-2 my-10 opacity-10 uppercase text-black font-bold'>
-          <hr className='w-1/2 border-black'/>
-          or
-          <hr className='w-1/2 border-black'/>
-        </div>
-        <button className='btn-dark flex items-center justify-center gap-4 w-[90%] center'>
+          <div className='relative w-full flex items-center gap-2 my-10 opacity-10 uppercase text-black font-bold'>
+            <hr className='w-1/2 border-black' />
+            or
+            <hr className='w-1/2 border-black' />
+          </div>
+          <button className='btn-dark flex items-center justify-center gap-4 w-[90%] center'>
             <img src={googleIcon} className='w-5' alt="" />
             continue with google
-        </button>
-        {
-          type == 'sign-in' ?
-          <p className='mt-6 text-dark-grey text-xl text-center'>Don't have an account? <Link to='/signup' className='underline text-black text-xl ml-1'>Join us</Link></p>
-          : <p className='mt-6 text-dark-grey text-xl text-center'>Already a member? <Link to='/signin' className='underline text-black text-xl ml-1'>Sign in here.</Link></p>
-        }
-      </form>
-    </section>
+          </button>
+          {type === 'sign-in' ?
+            <p className='mt-6 text-dark-grey text-xl text-center'>Don't have an account? <Link to='/signup' className='underline text-black text-xl ml-1'>Join us</Link></p>
+            : <p className='mt-6 text-dark-grey text-xl text-center'>Already a member? <Link to='/signin' className='underline text-black text-xl ml-1'>Sign in here.</Link></p>
+          }
+        </form>
+      </section>
     </AnimationWrapper>
-    
-  )
-}
+  );
+};
 
 export default UserAuthForm;
