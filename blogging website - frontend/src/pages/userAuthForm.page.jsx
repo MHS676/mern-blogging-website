@@ -1,22 +1,24 @@
-import React, { useRef } from 'react';
+import React, { useRef, useContext } from 'react';
 import InputBox from '../components/input.component';
 import { LuUser2, LuMail } from 'react-icons/lu';
 import { IoKeyOutline } from 'react-icons/io5';
 import googleIcon from '../imgs/google.png';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import AnimationWrapper from '../common/page-animation';
 import { Toaster, toast } from 'react-hot-toast';
 import axios from 'axios';
 import { storeInSession } from '../common/session';
+import { UserContext } from '../App';
 
 const UserAuthForm = ({ type }) => {
   const authForm = useRef();
+  const { setUserAuth } = useContext(UserContext);
 
   const UserAuthThroughServer = async (serverRoute, formData) => {
     try {
       const { data } = await axios.post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData);
       storeInSession("user", JSON.stringify(data));
-      console.log(sessionStorage);
+      setUserAuth(data);
       toast.success("User signed up successfully!");
     } catch (error) {
       if (error.response) {
@@ -66,6 +68,9 @@ const UserAuthForm = ({ type }) => {
   };
 
   return (
+    access_token ?
+    <Navigate to="/"/>
+    :
     <AnimationWrapper keyValue={type}>
       <section className='h-cover flex items-center justify-center'>
         <Toaster />
