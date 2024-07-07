@@ -9,25 +9,28 @@ import { Toaster, toast } from 'react-hot-toast';
 import axios from 'axios';
 import { storeInSession } from '../common/session';
 import { UserContext } from '../App';
+import { authWithGoogle } from '../common/firebase';
 
 const UserAuthForm = ({ type }) => {
   const authForm = useRef();
   const { userAuth, setUserAuth } = useContext(UserContext);
 
-  const UserAuthThroughServer = async (serverRoute, formData) => {
-    try {
-      const { data } = await axios.post(import.meta.env.VITE_SERVER_DOMAIN + serverRoute, formData);
-      storeInSession("user", JSON.stringify(data));
-      setUserAuth(data);
-      toast.success("User signed up successfully!");
-    } catch (error) {
-      if (error.response) {
-        toast.error(error.response.data.error);
-      } else {
-        toast.error("An unexpected error occurred");
-      }
+const UserAuthThroughServer = async (serverRoute, formData) => {
+  try {
+    const { data } = await axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}${serverRoute}`, formData);
+    storeInSession("user", JSON.stringify(data));
+    setUserAuth(data);
+    toast.success("User signed up successfully!");
+  } catch (error) {
+    if (error.response) {
+      toast.error(error.response.data.error);
+    } else {
+      toast.error("An unexpected error occurred");
     }
-  };
+  }
+};
+
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -66,6 +69,26 @@ const UserAuthForm = ({ type }) => {
 
     UserAuthThroughServer(serverRoute, formData);
   };
+
+const handleGoogleSignIn = async () => {
+  try {
+    const result = await authWithGoogle();
+    const { user, token } = result;
+
+    // Process the authenticated user data
+    const formData = {
+      email: user.email,
+      fullname: user.displayName,
+      googleId: user.uid,
+    };
+    await UserAuthThroughServer("/google-signin", formData);
+  } catch (error) {
+    toast.error("Google sign-in failed. Please try again.");
+  }
+};
+
+
+
 
   // Redirect if the user is authenticated
   if (userAuth.access_token) {
@@ -113,7 +136,7 @@ const UserAuthForm = ({ type }) => {
             or
             <hr className='w-1/2 border-black' />
           </div>
-          <button className='btn-dark flex items-center justify-center gap-4 w-[90%] center'>
+          <button className='btn-dark flex items-center justify-center gap-4 w-[90%] center' onClick={handleGoogleSignIn}>
             <img src={googleIcon} className='w-5' alt="" />
             continue with google
           </button>
