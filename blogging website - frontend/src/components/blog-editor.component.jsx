@@ -1,10 +1,28 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
+import logo from "../imgs/logo.png"
 
 const BlogEditor = () => {
   return (
-    <div>
-      <h1>Blog editor</h1>
-    </div>
+    <>
+        <nav className='navbar'>
+        <Link to="/" className='flex-none w-10 '>
+            <img src={logo} alt="" />
+        </Link>
+        <p className='max-md:hidden text-black line-clamp-1 w-full '>
+            New Blog
+        </p>
+
+        <div className='flex gap-4 ml-auto'>
+            <button className='btn-dark py-2'>
+                Publish
+            </button>
+            <button className='btn-light py-2'>
+                Save Draft
+            </button>
+        </div>
+    </nav>
+    </>
   )
 }
 
