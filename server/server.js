@@ -91,38 +91,40 @@ server.post('/signup', (req, res) => {
     // return res.status(200).json({"status": "Okay"})
 })
 
-server.post("/signin", (req, res) => {
+server.post("/google-signin", async (req, res) => {
+  const { email, fullname, googleId } = req.body;
 
-  let {email, password} = req.body;
+  try {
+    // Check if the user already exists
+    let user = await User.findOne({ "personal_info.email": email });
 
-  User.findOne({ "personal_info.email": email })
-  .then((user) => {
-    if(!user){
-      return res.status(403).json({ "error": "Email not found" })
+    if (user) {
+      // If user exists, send back user data
+      return res.status(200).json(formatDatatoSend(user));
+    } else {
+      // If user does not exist, create a new user
+      const username = await generateUsername(email);
+
+      user = new User({
+        personal_info: {
+          fullname,
+          email,
+          username,
+          googleId,
+        },
+      });
+
+      await user.save();
+      return res.status(200).json(formatDatatoSend(user));
     }
+  } catch (err) {
+    console.log(err.message);
+    return res.status(500).json({ "error": err.message });
+  }
+});
 
-    bcrypt.compare(password, user.personal_info.password, (err, result) => {
 
-      if(err) {
-        return res.status(403).json({ "error": "Error occured while login please try again" })
-      }
 
-      if(!result){
-        return res.status(403).json({"error": "Incorrect Password"})
-      }else {
-        return res.status(200).json(formatDatatoSend(user))
-      }
-
-    })
-
-    // console.log(user)
-    // return res.json({ "status": "got user document" })
-  })
-    .catch(err => {
-    console.log(err.message)
-    return res.status(500).json({ "error": err.message })
-  })
-})
 
 
 server.listen(PORT, () => {
