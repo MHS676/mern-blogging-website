@@ -5,12 +5,19 @@ import bcrypt from 'bcrypt';
 import { nanoid } from 'nanoid';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
-
+import admin from 'firebase-admin';
+import serviceAccountKey from "./react-js-blog-website-98b73-firebase-adminsdk-gn41n-39ad612daf.json" assert { type: 'json' };
+import {getAuth} from 'firebase-admin/auth'
 // Importing User schema
 import User from './Schema/User.js';
+import aws from "aws-sdk";
 
 const server = express();
 const PORT = 3000;
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccountKey)
+});
 
 // Regex for email and password validation
 const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -22,10 +29,18 @@ server.use(cors());
 // Connecting to MongoDB
 mongoose.connect(process.env.DB_LOCATION, {
     autoIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
 }).then(() => console.log('Database connected successfully'))
   .catch(err => console.error('Database connection error:', err));
+
+
+  const s3 = new aws.S3({
+    region: 'us-east-1',
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+});
+
 
 // Helper function to format data to send
 const formatDatatoSend = (user) => {
@@ -102,7 +117,8 @@ server.post("/signin", (req, res) => {
                 return res.status(403).json({ "error": "Email not found" });
             }
 
-            bcrypt.compare(password, user.personal_info.password, (err, result) => {
+            if(!user.google_auth){
+                bcrypt.compare(password, user.personal_info.password, (err, result) => {
                 if (err) {
                     return res.status(403).json({ "error": "Error occurred while logging in, please try again" });
                 }
@@ -112,6 +128,11 @@ server.post("/signin", (req, res) => {
                     return res.status(200).json(formatDatatoSend(user));
                 }
             });
+            } else {
+                return res.status(403).json({"error": "Account was created using google. Try logging in with google."})
+            }
+
+            
         })
         .catch(err => res.status(500).json({ "error": "Server error" }));
 });
@@ -142,6 +163,53 @@ server.post("/google-signin", async (req, res) => {
         return res.status(500).json({ "error": err.message });
     }
 });
+
+server.post("/google-auth", async(res, req) => {
+    let {access_token } = req.body;
+
+    getAuth()
+    .verifyIdToken(access_token)
+    .then(async (decodeUser) => {
+
+
+        let {email, name, picture} = decodeUser;
+
+        picture = picture.replace("s96-c", "s384-c")
+
+        let user = await User.findOne({"personal_info.email": email}).select("personal_info.fullname personal_info.username personal_info.profile_img google_auth").then((u) => {
+            return u || null
+        })
+
+        .catch(err => {
+            return res.status(500).json({"error": err.message})
+        })
+
+        if(user) { //login
+            if(!user.google_auth){
+                return res.status(403).json({"error": "This email was signed ud without email google. Please log in with password to access the account"})
+            }
+        }
+        else {
+            let username = await generateUsername(email)
+
+            user = new User({
+                personal_info: { fullname: name, email, profile_img: picture, username},
+                google_auth: true
+            })
+
+            await user.save().then((u) => {
+                user = u
+            })
+            .catch (err => {
+                return res.status(500).json({ "error": err.message})
+            })
+        }
+        return res.status(200).json(formatDatatoSend(user))
+    })
+    .catch (err => {
+        return res.status(500).json({ "error": "Failed to authenticate you with google. Try with some other google account"})
+    })
+})
 
 // Start the server
 server.listen(PORT, () => {
