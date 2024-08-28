@@ -89,6 +89,28 @@ const handleGoogleSignIn = async () => {
 
 
 
+const handleGoogleAuth = (e) => {
+  e.preventDefault()
+
+
+
+  authWithGoogle().then(user => {
+  let serverRoute = "/google-auth";
+  let formData = {
+    access_token
+  }
+  UserAuthThroughServer(serverRoute, formData)
+  })
+
+  
+
+  .catch (err => {
+    toast.error('trouble login through google');
+    return console.log(err)
+  })
+}
+
+
 
   // Redirect if the user is authenticated
   if (userAuth.access_token) {
