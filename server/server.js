@@ -26,6 +26,7 @@ const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
 server.use(express.json());
 server.use(cors());
 
+
 // Connecting to MongoDB
 mongoose.connect(process.env.DB_LOCATION, {
     autoIndex: true,
