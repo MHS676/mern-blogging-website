@@ -1,24 +1,32 @@
+// aws.jsx
 import axios from 'axios';
 
 export const uploadImage = async (img) => {
     let imgUrl = null;
 
     try {
-        const serverDomain = import.meta.env.VITE_SERVER_DOMAIN;
-        if (!serverDomain) {
-            throw new Error("Server domain is not defined. Check your environment variables.");
+        // Fetch presigned URL from your server
+        const response = await axios.get(`${import.meta.env.VITE_SERVER_DOMAIN}/get-upload-url`);
+        
+        console.log('Presigned URL Response:', response); // Debug log
+
+        // Safely extract the upload URL
+        const uploadUrl = response?.data?.uploadUrl;
+
+        // Check if the uploadUrl is properly defined
+        if (!uploadUrl) {
+            throw new Error('Upload URL is not defined');
         }
 
-        const { data: { uploadURL } } = await axios.get(`${serverDomain}/get-upload-url`);
+        console.log('Uploading to URL:', uploadUrl); // Log the upload URL
 
-        console.log('Presigned URL:', uploadURL); // Debugging output
-
-        // Dynamic Content-Type based on file type
-        await axios.put(uploadURL, img, {
-            headers: { 'Content-Type': img.type },
+        // Upload image to S3 using the presigned URL
+        await axios.put(uploadUrl, img, {
+            headers: { 'Content-Type': 'image/jpeg' },
         });
 
-        imgUrl = uploadURL.split('?')[0];  // Extract the URL without query parameters
+        // Extract the URL without query parameters
+        imgUrl = uploadUrl.split('?')[0];
     } catch (error) {
         console.error('Error uploading image:', error);
     }

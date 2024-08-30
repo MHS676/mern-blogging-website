@@ -9,7 +9,7 @@ import admin from 'firebase-admin';
 import serviceAccountKey from "./react-js-blog-website-98b73-firebase-adminsdk-gn41n-39ad612daf.json" assert { type: 'json' };
 import { getAuth } from 'firebase-admin/auth';
 import User from './Schema/User.js'; // Importing User schema
-import aws from "aws-sdk";
+import aws from 'aws-sdk';
 
 const server = express();
 const PORT = 3000;
@@ -18,7 +18,6 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccountKey)
 });
 
-// Regex for email and password validation
 const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
 
@@ -49,8 +48,25 @@ const generateUploadURL = async () => {
     ContentType: 'image/jpeg',
   };
 
-  return await s3.getSignedUrlPromise('putObject', params);
+  try {
+    const uploadURL = await s3.getSignedUrlPromise('putObject', params);
+    return uploadURL;
+  } catch (err) {
+    console.error('Error generating upload URL:', err);
+    throw new Error('Could not generate upload URL');
+  }
 };
+
+// Upload image URL route
+server.get('/get-upload-url', async (req, res) => {
+  try {
+    const uploadURL = await generateUploadURL();
+    res.status(200).json({ uploadURL }); // Ensure the correct response field name
+  } catch (err) {
+    console.error('Error in /get-upload-url route:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Helper function to format data to send
 const formatDatatoSend = (user) => {
@@ -72,6 +88,7 @@ const generateUsername = async (email) => {
   }
   return username;
 };
+
 
 // Upload image URL route
 server.get('/get-upload-url', async (req, res) => {
