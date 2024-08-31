@@ -42,7 +42,7 @@ const generateUploadURL = async () => {
   const imageName = `${nanoid()}-${date.getTime()}.jpeg`;
 
   const params = {
-    Bucket: 'Hasan_blog', // Replace with your actual bucket name
+    Bucket: 'hasanblog', // Replace with your actual bucket name
     Key: imageName,
     Expires: 1000, // URL expiration time in seconds
     ContentType: 'image/jpeg',
