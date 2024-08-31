@@ -11,7 +11,7 @@ export const uploadImage = async (img) => {
         console.log('Presigned URL Response:', response); // Debug log
 
         // Safely extract the upload URL
-        const uploadUrl = response?.data?.uploadUrl;
+        const uploadUrl = response?.data?.uploadURL;
 
         // Check if the uploadUrl is properly defined
         if (!uploadUrl) {
