@@ -56,7 +56,7 @@ const BlogEditor = () => {
   };
 
   const handleTitleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 13) {
       e.preventDefault();
     }
   };
