@@ -8,14 +8,14 @@
     
 # }
 
-# access_token - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDZmNzc3ZDljNGFiOTY1NGRmMDFiMCIsImlhdCI6MTcyNTM2NDA4N30.Nco5OkIeLlQ8RRL9pmVlC5u-ND-KTrAnfmPrOpuq5Zk
+# access_token - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDdlNjA5OGRhYWQyNzYwNWYzNTgwYyIsImlhdCI6MTcyNTQyNTE2MX0.TxOnzsOVFQY6BiK2HcdXTQUVYroXjqLnKmjUxUQaoKQ
 
 # POST http://localhost:3000/signup 
 #  Content-Type: application/json
 
 #  {
 #     "fullname": "siam",
-#     "email": "siam1@gmail.com",
+#     "email": "siam@gmail.com",
 #    "password": "Aa@123456"
     
 #  }
@@ -23,12 +23,12 @@
 # GET http://localhost:3000/get-upload-url 
 POST http://localhost:3000/create-blog
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImZyZXNoZXJ0b29AZ21haWwuY29tIiwiaWF0IjoxNzI0NTI3MDg5LCJleHAiOjE3MjQ2MTM0ODl9.kjIxsVElHNVugoLiQFdJSldp8c2_3DW9pT47wNRQUh4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDdlNjA5OGRhYWQyNzYwNWYzNTgwYyIsImlhdCI6MTcyNTQyNTE2MX0.TxOnzsOVFQY6BiK2HcdXTQUVYroXjqLnKmjUxUQaoKQ
 
 {
-    "title": "this is a test blog1",
+    "title": "this is a test blog",
     "banner": "https://example.com",
-    "des": "this is a short blog1",
+    "des": "this is a short blog",
     "content": {
         "blocks": [1,2]
     },

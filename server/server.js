@@ -8,7 +8,7 @@ import cors from 'cors';
 import admin from 'firebase-admin';
 import serviceAccountKey from "./react-js-blog-website-98b73-firebase-adminsdk-gn41n-39ad612daf.json" assert { type: 'json' };
 import { getAuth } from 'firebase-admin/auth';
-import User from './Schema/User.js'; // Importing User schema
+import User from './Schema/User.js'; 
 import aws from 'aws-sdk';
 import Blog from './Schema/Blog.js';
 
@@ -62,7 +62,7 @@ const generateUploadURL = async () => {
 server.get('/get-upload-url', async (req, res) => {
   try {
     const uploadURL = await generateUploadURL();
-    res.status(200).json({ uploadURL }); // Ensure the correct response field name
+    res.status(200).json({ uploadURL }); 
   } catch (err) {
     console.error('Error in /get-upload-url route:', err.message);
     res.status(500).json({ error: err.message });
@@ -266,54 +266,50 @@ server.post("/google-auth", async (req, res) => {
 });
 
 
-server.post("/create-blog",verifyJWT, (req,res) => {
-  
-  let authorId = req.user;
+server.post("/create-blog", verifyJWT, (req, res) => {
+  const authorId = req.user;
+  let { title, des, banner, tags, content, draft } = req.body;
 
-  let {title, des, banner, tags, content, draft} = req.body;
-
-  if(!title.length){
-    return res.status(403).json({error: "You must provide a little to publish the blog"})
+  // Validation checks
+  if (!title || !title.length) {
+    return res.status(403).json({ error: "You must provide a title to publish the blog" });
   }
-  if(!des.length || des.length > 200){
-    return res.status(403).json({error: "You must provide blog description under 200 characters"})
+  if (!des || des.length > 200) {
+    return res.status(403).json({ error: "You must provide a blog description under 200 characters" });
   }
-  if(!banner.length){
-    return res.status(403).json({error: "You must provide blog banner publish it"})
+  if (!banner || !banner.length) {
+    return res.status(403).json({ error: "You must provide a blog banner to publish it" });
   }
-  if(!content.blocks.length){
-    return res.status(403).json({error: "There must be some blog content to publish it"})
+  if (!content || !content.blocks || !content.blocks.length) {
+    return res.status(403).json({ error: "There must be some blog content to publish it" });
   }
-  if(!tags.length || tags.length > 10){
-    return res.status(403).json({error: "Provide tags in order to publish the blog, Maximum 10"})
+  if (!tags || !tags.length || tags.length > 10) {
+    return res.status(403).json({ error: "Provide tags in order to publish the blog, Maximum 10" });
   }
 
   tags = tags.map(tag => tag.toLowerCase());
+  const blog_id = title.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, "-").trim() + nanoid();
 
-  let blog_id = title.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, "-").trim() + nanoid();
-
-  let blog = new Blog({
-    title, des, banner, content, tags, author: authorId, blog_id,  draft: Boolean(draft)
-  })
+  const blog = new Blog({
+    title, des, banner, content, tags, author: authorId, blog_id, draft: Boolean(draft)
+  });
 
   blog.save().then(blog => {
-    let incrementalVal = draft ? 0 : 1;
+      const incrementalVal = draft ? 0 : 1;
 
-    User.findOneAndUpdate({ _id: authorId }, {$inc: {"account_info.total_post": incrementalVal}, $push: {"blog": blog_id}})
-    .then(user => {
-      return res.status(200).json({id: blog.blog_id})
+      return User.findOneAndUpdate(
+        { _id: authorId },
+        { $inc: { "account_info.total_posts": incrementalVal }, $push: { "blogs": blog._id } }
+      )
+      .then(user => {
+        res.status(200).json({ id: blog.blog_id });
+      });
     })
     .catch(err => {
-      return res.status(500).json({error: "Failed to update total posts number"})
-    })
-  })
-  .catch(err => {
-      return res.status(500).json({error: err.message})
-    })
+      res.status(500).json({ error: err.message });
+    });
+});
 
-  return res.json({status: 'done'})
-
-})
 
 // Start the server
 server.listen(PORT, () => {
