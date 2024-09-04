@@ -3,6 +3,7 @@ import AnimationWrapper from '../common/page-animation';
 import { Toaster } from 'react-hot-toast';
 import { RxCross1 } from 'react-icons/rx';
 import { EditorContext } from '../pages/editor.pages';
+<<<<<<< HEAD
 import Tag from './tags.component';
 
 const PublishForm = () => {
@@ -11,11 +12,17 @@ const PublishForm = () => {
   let tagLimit = 10;
 
   let {blog, blog: {banner, title, tags, des}, setEditorState, setBlog } = useContext(EditorContext);
+=======
+
+const PublishForm = () => {
+  let {blog: {banner, title, tags, des}, setEditorState } = useContext(EditorContext);
+>>>>>>> new-branch-name
 
   const handleCloseEvent = () => {
     setEditorState("editor");
   };
 
+<<<<<<< HEAD
   const handleBlogTitleChange = (e) => {
     let input = e.Target;
 
@@ -56,6 +63,11 @@ const PublishForm = () => {
   return (
     <AnimationWrapper>
       <section className=" w-screen min-h-screen grid items-center lg:grid-cols-2 py-16 lg:gap-4">
+=======
+  return (
+    <AnimationWrapper>
+      <section className="relative">
+>>>>>>> new-branch-name
         <Toaster />
 
         <button
@@ -71,6 +83,7 @@ const PublishForm = () => {
             <img src={banner} alt="" />
           </div>
           <h1 className='text-4xl font-medium mt-2 leading-tight line-clamp-2'>{title}</h1>
+<<<<<<< HEAD
           <p className=' font-gelasio line-clamp-2 text-xl leading-7 mt-4'>{des}</p>
         </div>
         <div className=' border-gray-50 lg:border-1 lg:pl-8 '>
@@ -114,6 +127,9 @@ const PublishForm = () => {
         </div>
 
         
+=======
+        </div>
+>>>>>>> new-branch-name
       </section>
     </AnimationWrapper>
   );

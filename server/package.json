@@ -1,17 +1,23 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "Express server for blogging website",
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "dev": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Your Name",
   "license": "ISC",
   "dependencies": {
+<<<<<<< HEAD
     "aws-sdk": "^2.1684.0",
+=======
+    "@aws-sdk/client-s3": "^3.637.0",
+    "aws-sdk": "^2.1687.0",
+>>>>>>> new-branch-name
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -25,5 +31,11 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
+<<<<<<< HEAD
+=======
+  },
+  "engines": {
+    "node": ">=18.0.0"
+>>>>>>> new-branch-name
   }
 }
