@@ -56,11 +56,8 @@ const BlogEditor = () => {
   };
 
   const handleTitleKeyDown = (e) => {
-<<<<<<< HEAD
-    if (e.key === 13) {
-=======
-    if (e.key === 'Enter') {
->>>>>>> new-branch-name
+
+    if (e.key === '13') {
       e.preventDefault();
     }
   };

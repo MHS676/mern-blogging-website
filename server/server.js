@@ -8,14 +8,9 @@ import cors from 'cors';
 import admin from 'firebase-admin';
 import serviceAccountKey from "./react-js-blog-website-98b73-firebase-adminsdk-gn41n-39ad612daf.json" assert { type: 'json' };
 import { getAuth } from 'firebase-admin/auth';
-<<<<<<< HEAD
-import User from './Schema/User.js'; // Importing User schema
 import aws from 'aws-sdk';
-=======
 import User from './Schema/User.js'; 
-import aws from 'aws-sdk';
 import Blog from './Schema/Blog.js';
->>>>>>> new-branch-name
 
 const server = express();
 const PORT = 3000;
@@ -67,19 +62,14 @@ const generateUploadURL = async () => {
 server.get('/get-upload-url', async (req, res) => {
   try {
     const uploadURL = await generateUploadURL();
-<<<<<<< HEAD
     res.status(200).json({ uploadURL }); // Ensure the correct response field name
-=======
     res.status(200).json({ uploadURL }); 
->>>>>>> new-branch-name
   } catch (err) {
     console.error('Error in /get-upload-url route:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-<<<<<<< HEAD
-=======
 const verifyJWT = (req, res, next) => {
 
   const authHeader = req.headers['authorization'];
@@ -101,7 +91,6 @@ const verifyJWT = (req, res, next) => {
 
 }
 
->>>>>>> new-branch-name
 // Helper function to format data to send
 const formatDatatoSend = (user) => {
   const access_token = jwt.sign({ id: user._id }, process.env.SECRET_ACCESS_KEY);
@@ -277,8 +266,7 @@ server.post("/google-auth", async (req, res) => {
     });
 });
 
-<<<<<<< HEAD
-=======
+
 
 server.post("/create-blog", verifyJWT, (req, res) => {
   const authorId = req.user;
@@ -325,7 +313,6 @@ server.post("/create-blog", verifyJWT, (req, res) => {
 });
 
 
->>>>>>> new-branch-name
 // Start the server
 server.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
