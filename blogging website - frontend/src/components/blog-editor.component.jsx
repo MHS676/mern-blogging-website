@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from "../imgs/logo.png";
 import AnimationWrapper from '../common/page-animation';
 import defaultBanner from '../imgs/blog banner.png';
@@ -8,6 +8,8 @@ import { Toaster, toast } from 'react-hot-toast';
 import { EditorContext } from '../pages/editor.pages';
 import EditorJS from '@editorjs/editorjs';
 import { tools } from './tools.component';
+import axios from 'axios';
+import { UserContext } from '../App';
 
 const BlogEditor = () => {
   const {
@@ -19,25 +21,20 @@ const BlogEditor = () => {
     setEditorState,
   } = useContext(EditorContext);
 
+  const { userAuth: { access_token } } = useContext(UserContext);
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const editor = new EditorJS({
-      holder: "textEditor",
-      data: content,
-      tools: tools,
-      placeholder: "Let's write an awesome story",
-    });
+    if (!textEditor.isReady) {
+      setTextEditor (new EditorJS({
+        holder: "textEditor",
+        data: content,
+        tools: tools,
+        placeholder: "Let's write an awesome story",
+      }));
 
-    setTextEditor(editor);
-
-    return () => {
-      editor.isReady
-        .then(() => {
-          editor.destroy();
-          setTextEditor(null);
-        })
-        .catch((err) => console.error("Failed to clean up the editor instance", err));
-    };
-  }, [content, setTextEditor]); // Ensure dependencies are correct
+    }
+  }, [content, textEditor, setTextEditor]);
 
   const handleBannerUpload = async (e) => {
     const img = e.target.files[0];
@@ -56,8 +53,7 @@ const BlogEditor = () => {
   };
 
   const handleTitleKeyDown = (e) => {
-
-    if (e.key === '13') {
+    if (e.key === 'Enter') {
       e.preventDefault();
     }
   };
@@ -77,7 +73,7 @@ const BlogEditor = () => {
     if (!blog.banner) return toast.error("Upload a blog banner to publish it");
     if (!blog.title) return toast.error("Write a blog title to publish it");
 
-    if (textEditor.isReady) {
+    if (textEditor && textEditor.isReady) {
       textEditor
         .save()
         .then((data) => {
@@ -92,6 +88,41 @@ const BlogEditor = () => {
     }
   };
 
+  const handleSaveDraft = async (e) => {
+    if (e.target.className.includes('disable')) {
+      return;
+    }
+    if (!title.length) {
+      return toast.error("Write blog title before saving it as a draft");
+    }
+
+    const loadingToast = toast.loading("Saving Draft...");
+    e.target.classList.add('disable');
+
+    if (textEditor && textEditor.isReady) {
+      try {
+        const content = await textEditor.save();
+        const blogObj = { title, banner, des: blog.des, content, tags: blog.tags, draft: true };
+
+        await axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}/create-blog`, blogObj, {
+          headers: { Authorization: `Bearer ${access_token}` },
+        });
+
+        e.target.classList.remove('disable');
+        toast.dismiss(loadingToast);
+        toast.success("Saved");
+
+        setTimeout(() => {
+          navigate("/");
+        }, 500);
+      } catch (error) {
+        e.target.classList.remove('disable');
+        toast.dismiss(loadingToast);
+        toast.error(error.response?.data?.error || "Failed to save draft");
+      }
+    }
+  };
+
   return (
     <>
       <nav className='navbar'>
@@ -103,7 +134,7 @@ const BlogEditor = () => {
         </p>
         <div className='flex gap-4 ml-auto'>
           <button className='btn-dark py-2' onClick={handlePublishEvent}>Publish</button>
-          <button className='btn-light py-2'>Save Draft</button>
+          <button onClick={handleSaveDraft} className='btn-light py-2'>Save Draft</button>
         </div>
       </nav>
       <Toaster />

@@ -7,7 +7,6 @@ import Tag from './tags.component';
 import { UserContext } from '../App';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { response } from 'express';
 
 const PublishForm = () => {
   let characterLimit = 200;

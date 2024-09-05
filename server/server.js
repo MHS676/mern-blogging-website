@@ -62,8 +62,7 @@ const generateUploadURL = async () => {
 server.get('/get-upload-url', async (req, res) => {
   try {
     const uploadURL = await generateUploadURL();
-    res.status(200).json({ uploadURL }); // Ensure the correct response field name
-    res.status(200).json({ uploadURL }); 
+    res.status(200).json({ uploadURL });
   } catch (err) {
     console.error('Error in /get-upload-url route:', err.message);
     res.status(500).json({ error: err.message });
@@ -71,25 +70,22 @@ server.get('/get-upload-url', async (req, res) => {
 });
 
 const verifyJWT = (req, res, next) => {
-
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(" ")[1];
 
-  if(token == null){
-    return res.status(401).json({error: "No access token"})
-
+  if (!token) {
+    return res.status(401).json({ error: "No access token" });
   }
 
   jwt.verify(token, process.env.SECRET_ACCESS_KEY, (err, user) => {
-    if( err ){
-      return res.status(403).json({ error: "Access token is invalid" })
+    if (err) {
+      return res.status(403).json({ error: "Access token is invalid" });
     }
 
-    req.user = user.id
-    next()
-  }) 
-
-}
+    req.user = user.id;
+    next();
+  });
+};
 
 // Helper function to format data to send
 const formatDatatoSend = (user) => {
@@ -111,18 +107,6 @@ const generateUsername = async (email) => {
   }
   return username;
 };
-
-
-// Upload image URL route
-server.get('/get-upload-url', async (req, res) => {
-  try {
-    const uploadURL = await generateUploadURL();
-    res.status(200).json({ uploadURL });
-  } catch (err) {
-    console.error(err.message);
-    return res.status(500).json({ error: err.message });
-  }
-});
 
 // Signup route
 server.post('/signup', (req, res) => {
@@ -266,27 +250,27 @@ server.post("/google-auth", async (req, res) => {
     });
 });
 
-
-
 server.post("/create-blog", verifyJWT, (req, res) => {
   const authorId = req.user;
   let { title, des, banner, tags, content, draft } = req.body;
 
-  // Validation checks
   if (!title || !title.length) {
-    return res.status(403).json({ error: "You must provide a title to publish the blog" });
+    return res.status(403).json({ error: "You must provide a title" });
   }
-  if (!des || des.length > 200) {
-    return res.status(403).json({ error: "You must provide a blog description under 200 characters" });
-  }
-  if (!banner || !banner.length) {
-    return res.status(403).json({ error: "You must provide a blog banner to publish it" });
-  }
-  if (!content || !content.blocks || !content.blocks.length) {
-    return res.status(403).json({ error: "There must be some blog content to publish it" });
-  }
-  if (!tags || !tags.length || tags.length > 10) {
-    return res.status(403).json({ error: "Provide tags in order to publish the blog, Maximum 10" });
+
+  if (!draft) {
+    if (!des || des.length > 200) {
+      return res.status(403).json({ error: "You must provide a blog description under 200 characters" });
+    }
+    if (!banner || !banner.length) {
+      return res.status(403).json({ error: "You must provide a blog banner to publish it" });
+    }
+    if (!content || !content.blocks || !content.blocks.length) {
+      return res.status(403).json({ error: "There must be some blog content to publish it" });
+    }
+    if (!tags || !tags.length || tags.length > 10) {
+      return res.status(403).json({ error: "Provide tags in order to publish the blog, Maximum 10" });
+    }
   }
 
   tags = tags.map(tag => tag.toLowerCase());
@@ -297,21 +281,20 @@ server.post("/create-blog", verifyJWT, (req, res) => {
   });
 
   blog.save().then(blog => {
-      const incrementalVal = draft ? 0 : 1;
+    const incrementalVal = draft ? 0 : 1;
 
-      return User.findOneAndUpdate(
-        { _id: authorId },
-        { $inc: { "account_info.total_posts": incrementalVal }, $push: { "blogs": blog._id } }
-      )
+    return User.findOneAndUpdate(
+      { _id: authorId },
+      { $inc: { "account_info.total_posts": incrementalVal }, $push: { "blogs": blog._id } }
+    )
       .then(user => {
         res.status(200).json({ id: blog.blog_id });
       });
-    })
+  })
     .catch(err => {
       res.status(500).json({ error: err.message });
     });
 });
-
 
 // Start the server
 server.listen(PORT, () => {
