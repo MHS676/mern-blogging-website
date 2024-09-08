@@ -4,10 +4,12 @@ import AnimationWrapper from '../common/page-animation'
 import InPageNavigation from '../components/inpage-navigation.component'
 import Loader from '../components/loader.component'
 import BlogPostCard from '../components/blog-post.component'
+import MinimalBlogPost from '../components/nobanner-blog-post.component'
 
 const Homepage = () => {
 
   let [ blogs, setBlog] = useState(null);
+  let [ trendingBlogs, setTrendingBlog] = useState(null);
 
   const fetchLatestBlogs = () => {
     axios.get(import.meta.env.VITE_SERVER_DOMAIN + '/latest-blogs')
@@ -18,9 +20,19 @@ const Homepage = () => {
       console.log(err)
     })
   }
+  const fetchTrendingBlogs = () => {
+    axios.get(import.meta.env.VITE_SERVER_DOMAIN + '/trending-blogs')
+    .then(({ data }) => {
+      setTrendingBlog(data.blogs)
+    })
+    .catch (err => {
+      console.log(err)
+    })
+  }
 
   useEffect(() => {
     fetchLatestBlogs()
+    fetchTrendingBlogs()
   })
 
   return (
@@ -42,7 +54,16 @@ const Homepage = () => {
             }
           </>
 
-            <h1>old Blogs Here</h1>
+            <>
+              {
+              trendingBlogs === null ? <Loader /> :
+              trendingBlogs.map((blog, i) => {
+                return <AnimationWrapper key={i} transition={{ duration: 1 , delay:i*.1 }}>
+                  <MinimalBlogPost blog={blog} index={i}/>
+                </AnimationWrapper>
+              })
+            }
+            </>
           </InPageNavigation>
         </div>
 
