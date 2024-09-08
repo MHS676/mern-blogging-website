@@ -1,5 +1,6 @@
 import { useContext } from "react"
 import { EditorContext } from "../pages/editor.pages"
+import { RxCross2 } from "react-icons/rx";
 
 const Tag = ({tag, tagIndex}) => {
 

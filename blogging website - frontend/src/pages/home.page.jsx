@@ -3,6 +3,7 @@ import axios from 'axios'
 import AnimationWrapper from '../common/page-animation'
 import InPageNavigation from '../components/inpage-navigation.component'
 import Loader from '../components/loader.component'
+import BlogPostCard from '../components/blog-post.component'
 
 const Homepage = () => {
 
@@ -33,8 +34,10 @@ const Homepage = () => {
           <>
             {
               blogs === null ? <Loader /> :
-              blogs.map((blogs, i) => {
-                return <h1 key={i}>{ blogs.title }</h1> 
+              blogs.map((blog, i) => {
+                return <AnimationWrapper key={i} transition={{ duration: 1 , delay:i*.1 }}>
+                  <BlogPostCard content={blog} author={blog.author.personal_info}/>
+                </AnimationWrapper>
               })
             }
           </>
