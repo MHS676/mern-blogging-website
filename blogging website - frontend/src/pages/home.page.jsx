@@ -5,6 +5,7 @@ import InPageNavigation, { activeTabRef } from '../components/inpage-navigation.
 import Loader from '../components/loader.component'
 import BlogPostCard from '../components/blog-post.component'
 import MinimalBlogPost from '../components/nobanner-blog-post.component'
+import NoDataMessage from '../components/nodata.component'
 
 const Homepage = () => {
 
@@ -89,24 +90,29 @@ const Homepage = () => {
           <>
             {
               blogs == null ? ( <Loader /> ): (
+                blogs.length ? 
               blogs.map((blog, i) => {
-                return ( <AnimationWrapper key={i} transition={{ duration: 1 , delay:i*0.1 }}>
+                return ( 
+                  <AnimationWrapper key={i} transition={{ duration: 1 , delay:i*0.1 }}>
                   <BlogPostCard content={blog} author={blog.author.personal_info}/>
                 </AnimationWrapper>
               )
               })
+              : <NoDataMessage message="No blogs published" />
             )}
           </>
 
             <>
               {
               trendingBlogs === null ? (<Loader />) :(
+                trendingBlogs.length ?
               trendingBlogs.map((blog, i) => {
                 return ( <AnimationWrapper key={i} transition={{ duration: 1 , delay:i*.1 }}>
                   <MinimalBlogPost blog={blog} index={i}/>
                 </AnimationWrapper>
                 )
               })
+              : <NoDataMessage message="No trending blogs" />
             )}
             </>
           </InPageNavigation>
@@ -142,12 +148,14 @@ const Homepage = () => {
             <h1 className='font-medium text-xl mb-8 '>Trending <i className='fi fi-rr-arrow-trend-up'></i> </h1>
             {
               trendingBlogs === null ? (<Loader />) :(
+                trendingBlogs.length ?
               trendingBlogs.map((blog, i) => {
                 return (<AnimationWrapper key={i} transition={{ duration: 1 , delay:i*.1 }}>
                   <MinimalBlogPost blog={blog} index={i}/>
                 </AnimationWrapper>
                 )
               })
+              : <NoDataMessage message="No blogs published" />
             )}
             </div>
             </div>
