@@ -272,9 +272,9 @@ server.get('/trending-blogs', (req, res) => {
   const maxLimit = 5; // Max number of blogs to return
 
   Blog.find({ draft: false })
-    .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname") // Correct field names
+    .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname") 
     .sort({ "activity.total_reads": -1, "activity.total_likes": -1, "publishedAt": -1 })
-    .select("blog_id title des banner publishedAt activity.total_likes") // Make sure to select necessary fields
+    .select("blog_id title des banner publishedAt activity.total_likes") 
     .limit(maxLimit)
     .then(blogs => {
       res.status(200).json({ blogs });
@@ -285,6 +285,28 @@ server.get('/trending-blogs', (req, res) => {
     });
 });
 
+
+server.post('/search-blogs', (req, res) => {
+
+  let { tag } = req.body;
+
+  let findQuery = { tags: tag,  draft: false };
+
+  let maxLimit = 5;
+
+  Blog.find(findQuery)
+  .populate("author", "personal_info.profile_img.username personal_info.fullname -_id")
+  .sort({ "publishedAt": -1 })
+  .select("blog_id title des banner activity tags publishedAt -_id")
+  .limit(maxLimit)
+  .then(blogs => {
+    return res.status(200).json({ blogs })
+  })
+  .catch(err => {
+    return res.status(500).json({ error: err.message })
+  })
+
+})
 
 
 server.post("/create-blog", verifyJWT, (req, res) => {
