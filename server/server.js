@@ -269,22 +269,22 @@ server.get('/latest-blogs', (req, res) => {
 })
 
 server.get('/trending-blogs', (req, res) => {
-
-  let maxLimit = 5;
+  const maxLimit = 5; // Max number of blogs to return
 
   Blog.find({ draft: false })
-  .populate("author", "personal_info.profile_img.username personal_info.fullname -_id")
-  .sort({ "activity.total_read": -1, "activity.total_likes": -1,  "publishedAt": -1 })
-  .select("blog_id title publishedAt -_id")
-  .limit(maxLimit)
-  .then(blogs => {
-    return res.status(200).json({ blogs })
-  })
-  .catch(err => {
-    return res.status(500).json({ error: err.message })
-  })
+    .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname") // Correct field names
+    .sort({ "activity.total_reads": -1, "activity.total_likes": -1, "publishedAt": -1 })
+    .select("blog_id title des banner publishedAt activity.total_likes") // Make sure to select necessary fields
+    .limit(maxLimit)
+    .then(blogs => {
+      res.status(200).json({ blogs });
+    })
+    .catch(err => {
+      console.error('Error fetching trending blogs:', err.message);
+      res.status(500).json({ error: "Failed to fetch trending blogs" });
+    });
+});
 
-})
 
 
 server.post("/create-blog", verifyJWT, (req, res) => {
