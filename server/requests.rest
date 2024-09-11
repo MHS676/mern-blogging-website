@@ -48,9 +48,16 @@
 
 # GET http://localhost:3000/latest-blogs
 # GET http://localhost:3000/trending-blogs
-POST http://localhost:3000/search-blogs
-Content-Type: application/json
+# POST http://localhost:3000/search-blogs
+# Content-Type: application/json
 
-{
-    "tag": "test"
-}
+# {
+#     "tag": "test"
+# }
+
+POST http://localhost:3000/search-user
+ Content-Type: application/json
+
+ {
+    "query": "has"
+ }
