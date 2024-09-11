@@ -55,9 +55,15 @@
 #     "tag": "test"
 # }
 
-POST http://localhost:3000/search-user
+# POST http://localhost:3000/search-user
+#  Content-Type: application/json
+
+#  {
+#     "query": "has"
+#  }
+POST http://localhost:3000/get-profile
  Content-Type: application/json
 
  {
-    "query": "has"
+    "username": "firoz"
  }
