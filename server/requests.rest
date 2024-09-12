@@ -61,9 +61,15 @@
 #  {
 #     "query": "has"
 #  }
-POST http://localhost:3000/get-profile
+# POST http://localhost:3000/get-profile
+#  Content-Type: application/json
+
+#  {
+#     "username": "siam"
+#  }
+POST http://localhost:3000/get-blog
  Content-Type: application/json
 
  {
-    "username": "firoz"
+    "blog_id": "How-Tiny-Neural-Networks-Represent-Basic-Functions0nYc3so00rS6uSHvgGhRF"
  }
