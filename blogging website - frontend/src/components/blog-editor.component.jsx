@@ -12,14 +12,7 @@ import axios from 'axios';
 import { UserContext } from '../App';
 
 const BlogEditor = () => {
-  const {
-    blog,
-    blog: { title, banner, content },
-    setBlog,
-    textEditor,
-    setTextEditor,
-    setEditorState,
-  } = useContext(EditorContext);
+const { blog, blog: { title, banner, content }, setBlog, textEditor, setTextEditor, setEditorState } = useContext(EditorContext);
 
   const { userAuth: { access_token } } = useContext(UserContext);
   const navigate = useNavigate();

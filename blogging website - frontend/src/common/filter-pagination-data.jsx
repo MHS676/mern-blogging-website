@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const FilterPaginationData = async ({ create_new_arr = false, state, data, page, countRoute, data_to_send  = { } }) => {
+const filterPaginationData = async ({ create_new_arr = false, state, data, page, countRoute, data_to_send  = { } }) => {
 
 let obj;
 
@@ -21,4 +21,4 @@ return obj;
 }
 
 
-export default FilterPaginationData
+export default filterPaginationData

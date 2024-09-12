@@ -6,8 +6,8 @@ import Loader from '../components/loader.component'
 import BlogPostCard from '../components/blog-post.component'
 import MinimalBlogPost from '../components/nobanner-blog-post.component'
 import NoDataMessage from '../components/nodata.component'
-import FilterPaginationData from '../common/filter-pagination-data'
 import LoadMoreDataBtn from '../components/load-more.component'
+import filterPaginationData from '../common/filter-pagination-data'
 
 const Homepage = () => {
 
@@ -23,7 +23,7 @@ const Homepage = () => {
     .then( async ({ data }) => {
 
 
-      let formateData = await FilterPaginationData({
+      let formateData = await filterPaginationData({
         state: blogs,
         data: data.blogs,
         page,
@@ -39,7 +39,7 @@ const Homepage = () => {
   const fetchBlogsByCategory = ({ page = 1 }) => {
     axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/search-blogs', { tag: pageState, page })
     .then( async ({ data }) => {
-      let formateData = await FilterPaginationData({
+      let formateData = await filterPaginationData({
         state: blogs,
         data: data.blogs,
         page,
