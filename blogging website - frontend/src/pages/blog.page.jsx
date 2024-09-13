@@ -6,6 +6,7 @@ import Loader from '../components/loader.component'
 import { getDay } from '../common/date'
 import BlogInteraction from '../components/blog-interaction.component'
 import BlogPostCard from '../components/blog-post.component'
+import BlogContent from '../components/blog-content.component'
 
 export const blogStructure = {
   title: '',
@@ -34,12 +35,13 @@ const BlogPage = () => {
       })
       .then(({ data: { blog } }) => {
 
+        setBlog(blog);
+
         axios.post(import.meta.env.VITE_SERVER_DOMAIN + "/search-blogs", { tag: blog.tags[0], limit: 6 ,eliminate_blog: blog_id })
         .then(({ data }) => {
           setSimilarBlogs(data.blogs);
         })
 
-        setBlog(blog);
         setLoading(false);
       })
       .catch(err => {
@@ -88,7 +90,17 @@ const BlogPage = () => {
             </div>
         </div>
           <BlogInteraction/>
-          {/* Blog content will go over here */}
+          
+          <div className=' my-12 font-gelasio blog-page-content'>
+            {
+              content[0].blocks.map((block, i) => {
+                return  <div key={i} className='my-4 md:my-8'>
+                  <BlogContent block={block} />
+                </div>
+              })
+            }
+          </div>
+
           <BlogInteraction/>
 
           {
