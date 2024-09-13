@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import logo from "../imgs/logo.png";
 import AnimationWrapper from '../common/page-animation';
 import defaultBanner from '../imgs/blog banner.png';
@@ -15,13 +15,14 @@ const BlogEditor = () => {
 const { blog, blog: { title, banner, content }, setBlog, textEditor, setTextEditor, setEditorState } = useContext(EditorContext);
 
   const { userAuth: { access_token } } = useContext(UserContext);
+  let { blog_id } = useParams()
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!textEditor.isReady) {
       setTextEditor (new EditorJS({
         holder: "textEditor",
-        data: content,
+        data: Array.isArray(content) ? content[0] : content,
         tools: tools,
         placeholder: "Let's write an awesome story",
       }));
@@ -97,7 +98,7 @@ const { blog, blog: { title, banner, content }, setBlog, textEditor, setTextEdit
         const content = await textEditor.save();
         const blogObj = { title, banner, des: blog.des, content, tags: blog.tags, draft: true };
 
-        await axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}/create-blog`, blogObj, {
+        await axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}/create-blog`, { ...blogObj, id: blog_id }, {
           headers: { Authorization: `Bearer ${access_token}` },
         });
 
