@@ -550,7 +550,7 @@ server.post("/add-comment", verifyJWT , (req, res) => {
  
     let { comment, commentedAt, children } = commentFile;
 
-    Blog.findOneAndUpdate({ _id }, { $push: { "comments": commentFile._id }, $inc: { "activity.total_comments": 1 }, "activity.total_parent_comments": 1 })
+    Blog.findOneAndUpdate({ _id }, { $push: { "comments": commentFile._id }, $inc: { "activity.total_comments": 1, "activity.total_parent_comments": 1 }  })
     .then(blog => { console.log("New commmet created ") })
 
     let notificationObj = {
