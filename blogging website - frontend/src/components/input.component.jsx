@@ -1,8 +1,16 @@
 import React, { useState } from 'react'
-import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
+import { FaRegEye, FaRegEyeSlash, FaGlobe, FaYoutube, FaTwitter } from 'react-icons/fa' // Import your required icons
 
-const InputBox = ({ name, type, id, value, placeholder, icon: Icon }) => {
+const iconMap = {
+  website: FaGlobe,
+  youtube: FaYoutube,
+  twitter: FaTwitter
+  // Add other icons here based on your needs
+};
+
+const InputBox = ({ name, type, id, value, placeholder, iconKey, disable = false }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const Icon = iconMap[iconKey]; // Map the string to a valid React icon component
 
   const togglePasswordVisibility = () => {
     setPasswordVisible((prevState) => !prevState);
@@ -16,9 +24,10 @@ const InputBox = ({ name, type, id, value, placeholder, icon: Icon }) => {
         placeholder={placeholder}
         defaultValue={value}
         id={id}
+        disabled={disable}
         className='input-box'
       />
-      {Icon && <Icon className='input-icon' />}
+      {Icon && <Icon className='input-icon' />}  {/* Properly render the passed icon */}
       {
         type === 'password' && (
           passwordVisible ? 
@@ -30,4 +39,4 @@ const InputBox = ({ name, type, id, value, placeholder, icon: Icon }) => {
   )
 }
 
-export default InputBox
+export default InputBox;

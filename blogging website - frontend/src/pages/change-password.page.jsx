@@ -5,6 +5,7 @@ import { useRef } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 import axios from 'axios'
 import { UserContext } from '../App'
+import { CiLock } from "react-icons/ci";
 
 const ChangePassword = () => {
 
@@ -66,8 +67,8 @@ const ChangePassword = () => {
             </h1>
 
             <div className='py-10 w-full md:max-w-[400px]'>
-                <InputBox name="currentPassword" type="password" className="profile-edit-input" placeholder="Current Password" icon="fi-rr-unlock" /> 
-                <InputBox name="newPassword" type="password" className="profile-edit-input" placeholder="Current Password" icon="fi-rr-unlock" /> 
+                <InputBox name="currentPassword" type="password" className="profile-edit-input" placeholder="Current Password" icon={CiLock} /> 
+                <InputBox name="newPassword" type="password" className="profile-edit-input" placeholder="Current Password" icon={CiLock} /> 
 
                 <button onClick={handleSubmit} className='btn-dark px-10' type='submit'>Change Password</button>
             </div>
