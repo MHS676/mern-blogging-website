@@ -642,7 +642,7 @@ server.post("/isliked-by-user", verifyJWT, (req, res) => {
 
 server.post("/add-comment", verifyJWT , (req, res) => {
   let user_id = req.user;
-  let { _id, comment, replying_to, blog_author } = req.body;
+  let { _id, comment, replying_to, blog_author, notification_id } = req.body;
 
   if (!comment.length) {
     return res.status(403).json({ error: "Write something to leave a comment" });
@@ -693,6 +693,11 @@ server.post("/add-comment", verifyJWT , (req, res) => {
         { $push: { children: commentFile._id } }, 
         { new: true }
       );
+
+      if(notification_id){
+        Notification.findOneAndUpdate({ _id: notification_id }, { reply: commentFile._id })
+        .then(notification => console.log('notification updated'))
+      }
 
 
       notificationObj.notification_for = replyingToCommentDoc.commented_by;
@@ -769,8 +774,11 @@ server.post("/add-comment", verifyJWT , (req, res) => {
 
 
 const deleteComments = (_id) => {
-  Comment.findOneAndDelete({ _id }).then(comment => {
+  Comment.findOneAndDelete({ _id })
+  .then(comment => {
+
     if (comment.parent) {
+
       Comment.findOneAndUpdate({ _id: comment.parent }, { $pull: { children: _id } })
         .then(() => console.log('comment deleted from parent'))
         .catch(err => console.log(err));
@@ -778,7 +786,7 @@ const deleteComments = (_id) => {
 
     // Deleting related notifications
     Notification.findOneAndDelete({ comment: _id }).then(() => console.log('comment notification deleted'));
-    Notification.findOneAndDelete({ reply: _id }).then(() => console.log('reply notification deleted'));
+    Notification.findOneAndUpdate({ reply: _id }, { $unset: { reply: 1 } }).then(() => console.log('reply notification deleted'));
 
     // Updating blog's comments and activity count
     Blog.findOneAndUpdate({ _id: comment.blog_id }, { $pull: { comments: _id }, $inc: { "activity.total_comments": -1, "activity.total_parent_comments": comment.parent ? 0 : -1 } })
@@ -825,6 +833,77 @@ server.get("/new-notification", verifyJWT, (req, res) => {
 
 })
 
+server.post("/notifications", verifyJWT, (req, res) => {
+  let user_id = req.user;
+
+  let  { page, filter, deleteDocCount } = req.body;
+
+  let maxLimit = 10;
+
+  let findQuery = { notification_for: user_id, user: { $ne: user_id } };
+
+  let skipDocs = (page - 1) * maxLimit;
+
+  if(filter != 'all'){
+    findQuery.type = filter;
+  }
+
+  if(deleteDocCount){
+    skipDocs = deleteDocCount;
+  }
+
+  Notification.find(findQuery)
+  .skip(skipDocs)
+  .limit(maxLimit)
+  .populate("blog", "title blog_id")
+  .populate("user", "personal_info.fullname personal_info.username personal_info.profile_img")
+  .populate("comment", "comment")
+  .populate("replied_on_comment", "comment")
+  .populate("reply", "comment")
+  .sort({ createdAt: -1 })
+  .select("createdAt type seen reply")
+  .then(notifications => {
+
+    Notification.updateMany(findQuery, { seen: true })
+    .skip(skipDocs)
+    .limit(maxLimit)
+    .then(() => console.log('notification seen'))
+
+    return res.status(200).json({ notifications })
+
+
+  })
+  .catch(err => {
+    console.log(err.message)
+      return res.status(500).json({ error: err.message });
+    });
+})
+
+server.post("/all-notifications-count", verifyJWT, (req, res) => {
+  let user_id = req.id;
+
+  let  {  filter } = req.body;
+
+
+  let findQuery = { notification_for: user_id, user: { $ne: user_id } };
+
+
+  if(filter != 'all'){
+    findQuery.type = filter;
+  }
+
+
+  Notification.countDocuments(findQuery)
+  .then(count => {
+
+    return res.status(200).json({ totalDocs: count })
+
+  })
+  .catch(err => {
+    console.log(err.message)
+      return res.status(500).json({ error: err.message });
+    });
+})
 
 // Start the server
 server.listen(PORT, () => {
