@@ -107,7 +107,7 @@ const { blog, blog: { title, banner, content }, setBlog, textEditor, setTextEdit
         toast.success("Saved");
 
         setTimeout(() => {
-          navigate("/");
+          navigate("/dashboard/blogs?tab=draft");
         }, 500);
       } catch (error) {
         e.target.classList.remove('disable');
