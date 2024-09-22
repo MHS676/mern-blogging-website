@@ -10,6 +10,10 @@ const InPageNavigation = ({ routes, defaultHidden=[ ],defaultActiveIndex = 0, ch
 
   const [inPageNavIndex, setInPageNavIndex] = useState(defaultActiveIndex);
 
+  let [ isResizeEventAdded, setIsResizeEventAdded ] = useState(false)
+
+  let [ width, setWidth ] = useState(window,  innerWidth)
+
   const changePageState = (btn, i) => {
     const { offsetWidth, offsetLeft } = btn;
 
@@ -20,8 +24,25 @@ const InPageNavigation = ({ routes, defaultHidden=[ ],defaultActiveIndex = 0, ch
   };
 
   useEffect(() => {
+
+    if(width > 766 && inPageNavIndex != defaultActiveIndex){
+      changePageState( activeTabRef.current, defaultActiveIndex )
+    }
+
     changePageState(activeTabRef.current, defaultActiveIndex)
-  }, [])
+
+    if(!isResizeEventAdded){
+      window.addEventListener('resize', () => {
+        if(!isResizeEventAdded){
+          setIsResizeEventAdded(true)
+        }
+        setWidth(window.innerWidth)
+      })
+    }
+
+  }, [width])
+
+
 
   return (
     <>
