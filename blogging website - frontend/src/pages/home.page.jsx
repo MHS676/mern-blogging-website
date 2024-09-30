@@ -12,11 +12,10 @@ import filterPaginationData from '../common/filter-pagination-data'
 const Homepage = () => {
 
   let [ blogs, setBlog] = useState(null);
-
   let [ trendingBlogs, setTrendingBlog] = useState(null);
   let [ pageState, setPageState] = useState("home");
 
-  let categories = ["programming", "hollywood", "film making", "social media", "cooking", "tech", "finances", "travel", "java"]
+  let categories = ["software", "hollywood", "film making", "social media", "cooking", "tech", "finances", "travel", "java"]
 
   const fetchLatestBlogs = ( page = 1 ) => {
     axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/latest-blogs', { page })

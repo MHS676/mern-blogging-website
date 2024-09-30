@@ -5,7 +5,6 @@ import BlogEditor from '../components/blog-editor.component';
 import PublishForm from '../components/publish-form.component';
 import Loader from '../components/loader.component';
 import axios from 'axios';
-import { set } from 'mongoose';
 
 // Create the context
 export const EditorContext = createContext({});

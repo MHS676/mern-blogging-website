@@ -74,7 +74,7 @@ const SideNav = () => {
             </div>
             Notifications
           </NavLink>
-          <NavLink to='/dashboard/write' onClick={changePageState} className='sidebar-link'>
+          <NavLink to='/editor' onClick={changePageState} className='sidebar-link'>
             <i className='fi fi-rr-file-edit'></i> Write
           </NavLink>
 

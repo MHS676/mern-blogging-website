@@ -66,7 +66,7 @@ const ProfilePage = () => {
   };
 
   const getBLogs = ({ page = 1, user_id }) => {
-    user_id = user_id ?? blogs?.user_id; // Use nullish coalescing to check if user_id is provided
+    user_id = user_id ?? blogs?.user_id; 
 
     if (!user_id) {
       toast.error("User ID is missing for fetching blogs.");
@@ -112,6 +112,8 @@ const ProfilePage = () => {
     setProfileLoaded("")
   };
 
+  console.log(blogs)
+
   return (
     <AnimationWrapper>
       {loading ? 
@@ -140,11 +142,11 @@ const ProfilePage = () => {
           <div className='max-md:mt-12 w-full'>
             <InPageNavigation routes={["Blogs Published", "About"]} defaultHidden={["About"]}>
               <>
-                {blogs == null ? (
+                {blogs === null ? (
                   <Loader />
                 ) : blogs.results.length ? (
                   blogs.results.map((blog, i) => (
-                    <AnimationWrapper key={blog._id || i} transition={{ duration: 1, delay: i * 0.1 }}>
+                    <AnimationWrapper key={i} transition={{ duration: 1, delay: i * 0.1 }}>
                       <BlogPostCard content={blog} author={blog.author.personal_info} />
                     </AnimationWrapper>
                   ))

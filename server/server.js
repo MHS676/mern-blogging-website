@@ -92,12 +92,12 @@ const verifyJWT = (req, res, next) => {
 
 // Helper function to format data to send
 const formatDatatoSend = (user) => {
-  const access_token = jwt.sign({ id: user._id }, process.env.SECRET_ACCESS_KEY);
+  const access_token = jwt.sign({ id: user._id, }, process.env.SECRET_ACCESS_KEY);
   return {
     access_token,
     profile_img: user.personal_info.profile_img,
     username: user.personal_info.username,
-    fullname: user.personal_info.fullname
+    fullname: user.personal_info.fullname,
   };
 };
 
@@ -305,7 +305,7 @@ server.post('/latest-blogs', (req, res) => {
   let maxLimit = 5;
 
   Blog.find({ draft: false })
-  .populate("author", "personal_info.profile_img.username personal_info.fullname -_id")
+  .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
   .sort({ "publishedAt": -1 })
   .select("blog_id title des banner activity tags publishedAt -_id")
   .skip((page - 1) * maxLimit)
@@ -368,7 +368,7 @@ server.post('/search-blogs', (req, res) => {
   let maxLimit = limit ? limit : 2;
 
   Blog.find(findQuery)
-  .populate("author", "personal_info.profile_img.username personal_info.fullname -_id")
+  .populate("author", "personal_info.profile_img personal_info.username personal_info.fullname -_id")
   .sort({ "publishedAt": -1 })
   .select("blog_id title des banner activity tags publishedAt -_id")
   .skip((page - 1 ) * maxLimit)
@@ -504,7 +504,10 @@ server.post("/update-profile", verifyJWT, (req, res) => {
 
 server.post("/create-blog", verifyJWT, (req, res) => {
   const authorId = req.user;
-  let { title, des, banner, tags, content, draft, id } = req.body;
+
+ 
+
+    let { title, des, banner, tags, content, draft, id } = req.body;
 
   if (!title || !title.length) {
     return res.status(403).json({ error: "You must provide a title" });
@@ -558,6 +561,11 @@ server.post("/create-blog", verifyJWT, (req, res) => {
     .catch(err => {
       res.status(500).json({ error: err.message });
     });
+
+  
+
+
+  
 });
 
 server.post("/get-blog", (req, res) => {
@@ -952,7 +960,8 @@ server.post("/delete-blog", verifyJWT, (req, res) => {
   let user_id = req.user;
   let { blog_id } = req.body;
 
-  Blog.findOneAndDelete({ blog_id })
+
+     Blog.findOneAndDelete({ blog_id })
   .then(blog => {
 
     Notification.deleteMany({ blog: blog._id })
@@ -970,6 +979,9 @@ server.post("/delete-blog", verifyJWT, (req, res) => {
   .catch(err => {
     return res.status(500).json({ error: err.message })
   })
+
+
+ 
 
 })
 
