@@ -104,7 +104,7 @@ const { blog, blog: { title, banner, content }, setBlog, textEditor, setTextEdit
         const blogObj = { title, banner, des: blog.des, content, tags: blog.tags, draft: true };
 
         await axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}/create-blog`, { ...blogObj, id: blog_id }, {
-          headers: { Authorization: `Bearer ${access_token}` },
+          headers: { 'Authorization': `Bearer ${access_token}` },
         });
 
         e.target.classList.remove('disable');

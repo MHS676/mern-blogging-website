@@ -114,7 +114,7 @@ const Navbar = () => {
                   {/* <VscBell className='text-2xl block ml-3'/> */}
                   <i className='fi fi-rr-bell text-2xl block mt-1'></i>
                   {
-                    new_notification_available ? <span className=' bg-red w-3 h-3 rounded-full absolute z-10 top-2 right-2'></span> : ""
+                    new_notification_available ? <span className=' bg-red w-3 h-3 rounded-full absolute z-10 top-2 right-2'></span> : ''
                   }
                   
                 </button>
@@ -125,7 +125,7 @@ const Navbar = () => {
                 </button>
 
                   {
-                    userNavPanel ? <UserNavigationPanel/> : ""
+                    userNavPanel ? <UserNavigationPanel/> : ''
                   }
 
               </div>

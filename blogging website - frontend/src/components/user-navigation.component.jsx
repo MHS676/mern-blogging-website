@@ -23,7 +23,7 @@ const UserNavigationPanel = () => {
                 <Link to="/editor" className='flex gap-2 link md:hidden pl-8 py-4'>
                 <LuFileEdit className='text-2xl'/>
                 <p>Write</p>
-                </Link> : ""
+                </Link> 
             
 
             <Link to={`/user/${author_username}`} className='link pl-8 py-4'>

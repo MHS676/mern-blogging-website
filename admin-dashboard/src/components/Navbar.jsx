@@ -1,12 +1,16 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 
+
 const Navbar = () => {
+
+  
+
   return (
     <>
     <div className="navbar bg-base-100 border-b-2 ">
   <div className="flex-1">
-    <a className="btn btn-ghost text-xl">Admin</a>
+    <a className=" text-xl">Admin</a>
   </div>
   <div className="flex-none gap-2">
     <div className="form-control">
@@ -35,7 +39,7 @@ const Navbar = () => {
     </div>
   </div>
 </div>
-        <Outlet/>
+<Outlet/>
     </>
   )
 }

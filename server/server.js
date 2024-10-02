@@ -40,6 +40,8 @@ const s3 = new aws.S3({
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 });
 
+   
+
 // Function to generate an AWS S3 signed URL for image upload
 const generateUploadURL = async () => {
   const date = new Date();
@@ -89,6 +91,29 @@ const verifyJWT = (req, res, next) => {
     next();
   });
 };
+
+// Middleware to verify admin
+    const verifyAdmin = async (req, res, next) => {
+  try {
+    const email = req.decoded.email; // Extract email from the decoded token
+    const user = await User.findOne({ email }); // Adjust based on how you get users
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isAdmin = user.role === 'admin'; // Assuming user has a 'role' field
+
+    if (!isAdmin) {
+      return res.status(403).json({ message: 'Forbidden: Admin access required' });
+    }
+
+    next(); // Proceed to the next middleware/route handler
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 
 // Helper function to format data to send
 const formatDatatoSend = (user) => {
@@ -537,7 +562,7 @@ server.post("/create-blog", verifyJWT, (req, res) => {
 
   if(id) {
 
-    Blof.findOneAndUpdate({ blog_id }, { title, des, banner, content, tags, draft: draft ? draft : false })
+    Blog.findOneAndUpdate({ blog_id }, { title, des, banner, content, tags, draft: draft ? draft : false })
     .then(() => {
       return res.status(200).json({ id: blog_id });
     })
@@ -545,9 +570,8 @@ server.post("/create-blog", verifyJWT, (req, res) => {
       res.status(500).json({ error: err.message });
     });
 
-  }
-
-  blog.save().then(blog => {
+  } else {
+    blog.save().then(blog => {
     const incrementalVal = draft ? 0 : 1;
 
     return User.findOneAndUpdate(
@@ -561,9 +585,7 @@ server.post("/create-blog", verifyJWT, (req, res) => {
     .catch(err => {
       res.status(500).json({ error: err.message });
     });
-
-  
-
+  }
 
   
 });
@@ -602,7 +624,7 @@ server.post("/like-blog", verifyJWT, (req, res) => {
 
   let { _id, islikedByUser } = req.body;
 
-  let incrementVal = !islikedByUser ? 1 : -1;
+  let incrementVal = !islikedByUser ? 1 : 0;
 
   Blog.findOneAndUpdate({ _id }, { $inc: { "activity.total_likes": incrementVal }} )
   .then(blog => {
@@ -984,6 +1006,66 @@ server.post("/delete-blog", verifyJWT, (req, res) => {
  
 
 })
+
+
+// admin section
+
+
+
+server.get('/all-likes', async (req, res) => {
+    try {
+        // Fetch notifications where type is 'like'
+        const notifications = await Notification.find({ type: 'like',  })
+            .populate('user', 'username email') // Populate user fields
+            .exec(); // Ensure the query is executed
+
+        // Map to extract likes details
+        const likesDetails = notifications.map(notification => ({
+            user: notification.user,
+            blog: notification.blog, // Assuming you have a blog reference here
+            createdAt: notification.createdAt // Add more fields as needed
+        }));
+
+        res.status(200).json(likesDetails); // Use json to send data as JSON response
+    } catch (error) {
+        console.error('Error fetching likes:', error);
+        res.status(500).send({ message: 'Failed to fetch likes' });
+    }
+});
+server.get('/all-comments', async (req, res) => {
+    try {
+        // Fetch notifications where type is 'like'
+        const notifications = await Notification.find({ type: 'comment',  })
+            .populate('user', 'username email') // Populate user fields
+            .exec(); // Ensure the query is executed
+
+        // Map to extract likes details
+        const commentsDetails = notifications.map(notification => ({
+            user: notification.user,
+            blog: notification.blog, // Assuming you have a blog reference here
+            createdAt: notification.createdAt // Add more fields as needed
+        }));
+
+        res.status(200).json(commentsDetails); // Use json to send data as JSON response
+    } catch (error) {
+        console.error('Error fetching likes:', error);
+        res.status(500).send({ message: 'Failed to fetch likes' });
+    }
+});
+
+server.get('/all-blog-count', async (req, res) => {
+  try {
+    // Count all blogs in the Blog collection
+    const blogCount = await Blog.countDocuments(); // Using countDocuments to get the total number of documents
+
+    res.status(200).send({ totalBlogs: blogCount }); // Send the count as a response
+  } catch (error) {
+    console.error('Error fetching blog count:', error);
+    res.status(500).send({ message: 'Failed to fetch blog count' });
+  }
+});
+
+
 
 // Start the server
 server.listen(PORT, () => {
