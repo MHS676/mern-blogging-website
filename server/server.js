@@ -1010,7 +1010,7 @@ server.post("/delete-blog", verifyJWT, (req, res) => {
 
 // admin section
 
-
+// Dashboard Overview
 
 server.get('/all-likes', async (req, res) => {
     try {
@@ -1032,6 +1032,8 @@ server.get('/all-likes', async (req, res) => {
         res.status(500).send({ message: 'Failed to fetch likes' });
     }
 });
+
+
 server.get('/all-comments', async (req, res) => {
     try {
         // Fetch notifications where type is 'like'
@@ -1064,6 +1066,65 @@ server.get('/all-blog-count', async (req, res) => {
     res.status(500).send({ message: 'Failed to fetch blog count' });
   }
 });
+
+
+server.get('/all-users-count', async (req, res) => {
+  try {
+    // Count all users in the User collection
+    const usersCount = await User.countDocuments(); // Using countDocuments to get the total number of users
+
+    res.status(200).send({ totalUsers: usersCount }); // Send the count as a response
+  } catch (error) {
+    console.error('Error fetching users count:', error); // Corrected error message
+    res.status(500).send({ message: 'Failed to fetch users count' }); // Corrected response message
+  }
+});
+
+// Fetch all users, including email and role
+server.get('/all-users', async (req, res) => {
+  try {
+    const users = await User.find({}, 'personal_info.email personal_info.role personal_info.username'); // Select necessary fields
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).send({ message: 'Failed to fetch users' });
+  }
+});
+
+
+// DELETE route to handle user deletion
+server.delete('/users/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params; // Get the user ID from the URL params
+    const deletedUser = await User.findByIdAndDelete(userId); // Delete the user by ID
+
+    if (!deletedUser) {
+      return res.status(404).send({ message: 'User not found' });
+    }
+
+    res.status(200).send({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).send({ message: 'Failed to delete user' });
+  }
+});
+
+
+server.get('/all-blogs-comment', async (req, res) => {
+  try {
+    // Fetch blogs along with their comments and author information
+    const blogs = await Blog.find() // Adjust the query as necessary
+      .populate('comments') // Populate comments with the user details if necessary
+      .populate('author', 'username'); // Populate author with only the username field
+
+    res.status(200).json(blogs); // Send the blogs as a response
+  } catch (error) {
+    console.error('Error fetching blogs:', error); // Log the error
+    res.status(500).send({ message: 'Failed to fetch blogs' }); // Send a generic error message
+  }
+});
+
+
 
 
 
